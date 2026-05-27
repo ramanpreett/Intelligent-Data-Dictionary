@@ -4,21 +4,102 @@ import { logger } from "./logger.js";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-function getClient(): GoogleGenerativeAI {
+function getClient(apiVersion = "v1beta"): GoogleGenerativeAI {
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY environment variable is not set");
   }
-  return new GoogleGenerativeAI(apiKey);
+  // GoogleGenerativeAI accepts an optional RequestOptions second arg at runtime
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new (GoogleGenerativeAI as any)(apiKey, { apiVersion });
 }
 
-const FALLBACK_MODELS = [
+// Preferred model names ordered by preference (matches what v1beta lists)
+const PREFERRED_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.5-pro",
   "gemini-2.0-flash",
+  "gemini-2.0-flash-001",
   "gemini-2.0-flash-lite",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
-  "gemini-1.5-pro",
-  "gemini-pro",
+  "gemini-2.0-flash-lite-001",
+  "gemini-flash-latest",
+  "gemini-flash-lite-latest",
+  "gemini-pro-latest",
 ];
+
+// Cache discovered models for 10 minutes
+let discoveredModels: string[] | null = null;
+let discoveryTs = 0;
+const DISCOVERY_TTL_MS = 10 * 60 * 1000;
+
+async function listSupportedModels(): Promise<string[]> {
+  const now = Date.now();
+  if (discoveredModels && now - discoveryTs < DISCOVERY_TTL_MS) {
+    return discoveredModels;
+  }
+
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`
+  );
+
+  if (!res.ok) {
+    logger.warn({ status: res.status }, "Failed to list Gemini models, using defaults");
+    return PREFERRED_MODELS;
+  }
+
+  const data = await res.json() as {
+    models?: Array<{ name: string; supportedGenerationMethods?: string[] }>;
+  };
+
+  const available = (data.models ?? [])
+    .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+    .map((m) => m.name.replace("models/", ""));
+
+  logger.info({ count: available.length, models: available }, "Discovered available Gemini models");
+
+  // Sort by preferred order, then append remaining ones
+  const sorted = [
+    ...PREFERRED_MODELS.filter((p) => available.includes(p)),
+    ...available.filter((a) => !PREFERRED_MODELS.includes(a)),
+  ];
+
+  discoveredModels = sorted.length > 0 ? sorted : PREFERRED_MODELS;
+  discoveryTs = now;
+  return discoveredModels;
+}
+
+async function tryGenerateWithFallback(prompt: string): Promise<string> {
+  const models = await listSupportedModels();
+  let lastError: unknown;
+
+  // Try v1beta first, then v1 for 404s
+  for (const modelName of models) {
+    for (const apiVersion of ["v1beta", "v1"]) {
+      try {
+        logger.info({ model: modelName, apiVersion }, "Attempting Gemini model");
+        const genAI = getClient(apiVersion);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().trim();
+        logger.info({ model: modelName, apiVersion }, "Gemini model succeeded");
+        return text;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        const is404 = message.includes("404") || message.includes("Not Found");
+        const is429 = message.includes("429") || message.includes("Too Many Requests");
+        logger.warn({ model: modelName, apiVersion, is404, is429 }, "Gemini model attempt failed");
+        lastError = err;
+        // Only try v1 if we got a 404 in v1beta; otherwise break inner loop
+        if (!is404) break;
+      }
+    }
+  }
+
+  throw new Error(
+    `All Gemini models failed. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+  );
+}
 
 export interface ColumnDescription {
   name: string;
@@ -34,30 +115,6 @@ export interface AIAnalysisResult {
   dataQualityScore: number;
   columnDescriptions: ColumnDescription[];
   relationshipExplanations: string[];
-}
-
-async function tryGenerateWithFallback(prompt: string): Promise<string> {
-  const genAI = getClient();
-  let lastError: unknown;
-
-  for (const modelName of FALLBACK_MODELS) {
-    try {
-      logger.info({ model: modelName }, "Attempting Gemini model");
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      logger.info({ model: modelName }, "Gemini model succeeded");
-      return text;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      logger.warn({ model: modelName, err: message }, "Gemini model failed, trying next");
-      lastError = err;
-    }
-  }
-
-  throw new Error(
-    `All Gemini models failed. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
-  );
 }
 
 export async function generateDataDictionaryAnalysis(
