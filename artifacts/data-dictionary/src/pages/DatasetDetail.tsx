@@ -92,7 +92,7 @@ type SortKey = "name" | "dataType" | "nullPercent" | "uniquePercent" | null;
 
 export function DatasetDetail() {
   const { id } = useParams<{ id: string }>();
-  const datasetId = Number(id);
+  const datasetId = id ?? "";
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
@@ -104,11 +104,11 @@ export function DatasetDetail() {
   const [activeTab, setActiveTab] = useState<"dictionary" | "schema" | "charts">("dictionary");
 
   const { data: dataset, isLoading, isError, refetch } = useGetDataset(datasetId, {
-    query: { enabled: !!datasetId, queryKey: getGetDatasetQueryKey(datasetId) },
+    query: { enabled: !!datasetId, queryKey: getGetDatasetQueryKey(datasetId as any) },
   });
 
   const { data: stats } = useGetDatasetStats(datasetId, {
-    query: { enabled: !!datasetId, queryKey: getGetDatasetStatsQueryKey(datasetId) },
+    query: { enabled: !!datasetId, queryKey: getGetDatasetStatsQueryKey(datasetId as any) },
   });
 
   const analyzeMutation = useAnalyzeDataset();
@@ -116,11 +116,11 @@ export function DatasetDetail() {
 
   const handleAnalyze = () => {
     analyzeMutation.mutate(
-      { id: datasetId },
+      { id: datasetId as any },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetDatasetQueryKey(datasetId) });
-          queryClient.invalidateQueries({ queryKey: getGetDatasetStatsQueryKey(datasetId) });
+          queryClient.invalidateQueries({ queryKey: getGetDatasetQueryKey(datasetId as any) });
+          queryClient.invalidateQueries({ queryKey: getGetDatasetStatsQueryKey(datasetId as any) });
         },
       }
     );
@@ -141,7 +141,7 @@ export function DatasetDetail() {
 
   const handleDelete = () => {
     deleteMutation.mutate(
-      { id: datasetId },
+      { id: datasetId as any },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListDatasetsQueryKey() });

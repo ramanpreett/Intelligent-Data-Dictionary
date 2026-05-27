@@ -70,7 +70,7 @@ export function Upload() {
         throw new Error((data as { error?: string }).error || "Upload failed");
       }
 
-      const dataset = await response.json() as { id: number };
+      const dataset = await response.json() as { id: string | number };
       setUploadState("success");
 
       setTimeout(() => {

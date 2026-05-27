@@ -38,14 +38,14 @@ export function DatasetsList() {
   const queryClient = useQueryClient();
   const { data: datasets, isLoading, isError } = useListDatasets();
   const deleteMutation = useDeleteDataset();
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | number | null>(null);
 
-  const confirmDelete = (id: number) => setDeleteId(id);
+  const confirmDelete = (id: string | number) => setDeleteId(id);
 
   const handleDelete = () => {
     if (deleteId == null) return;
     deleteMutation.mutate(
-      { id: deleteId },
+    { id: deleteId as any },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListDatasetsQueryKey() });

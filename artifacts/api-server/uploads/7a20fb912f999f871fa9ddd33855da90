@@ -1,0 +1,11 @@
+Order_ID,Customer_ID,Customer_Name,Email,Gender,Age,City,State,Product_ID,Product_Name,Category,Quantity,Unit_Price,Discount_Percent,Order_Date,Payment_Method,Order_Status,Delivery_Days,Returned
+ORD1001,CUST201,Rahul Sharma,rahul.sharma@gmail.com,Male,28,Delhi,Delhi,PRD501,Wireless Mouse,Electronics,2,799,10,2025-01-15,UPI,Delivered,3,No
+ORD1002,CUST202,Priya Mehta,priya.mehta@gmail.com,Female,34,Mumbai,Maharashtra,PRD502,Office Chair,Furniture,1,5999,15,2025-01-16,Credit Card,Delivered,5,No
+ORD1003,CUST203,Amit Verma,amit.verma@gmail.com,Male,22,Bengaluru,Karnataka,PRD503,Water Bottle,Home & Kitchen,3,499,5,2025-01-17,Debit Card,Cancelled,0,No
+ORD1004,CUST204,Neha Kapoor,neha.kapoor@gmail.com,Female,30,Chandigarh,Punjab,PRD504,Bluetooth Speaker,Electronics,1,2499,20,2025-01-18,Cash on Delivery,Delivered,4,No
+ORD1005,CUST205,Arjun Singh,arjun.singh@gmail.com,Male,40,Jaipur,Rajasthan,PRD505,Running Shoes,Fashion,2,3499,25,2025-01-19,UPI,Returned,6,Yes
+ORD1006,CUST206,Simran Kaur,simran.kaur@gmail.com,Female,27,Ludhiana,Punjab,PRD506,Laptop Stand,Electronics,1,1299,12,2025-01-20,Net Banking,Delivered,2,No
+ORD1007,CUST207,Karan Malhotra,karan.m@gmail.com,Male,31,Hyderabad,Telangana,PRD507,Coffee Maker,Home Appliances,1,4599,18,2025-01-21,Credit Card,Shipped,7,No
+ORD1008,CUST208,Ananya Roy,ananya.roy@gmail.com,Female,25,Kolkata,West Bengal,PRD508,Notebook Pack,Stationery,5,299,0,2025-01-22,UPI,Delivered,3,No
+ORD1009,CUST209,Vikram Joshi,vikram.j@gmail.com,Male,36,Pune,Maharashtra,PRD509,Smart Watch,Electronics,1,8999,8,2025-01-23,Debit Card,Delivered,5,No
+ORD1010,CUST210,Isha Arora,isha.arora@gmail.com,Female,29,Gurugram,Haryana,PRD510,Desk Lamp,Furniture,2,1499,10,2025-01-24,Cash on Delivery,Processing,,No

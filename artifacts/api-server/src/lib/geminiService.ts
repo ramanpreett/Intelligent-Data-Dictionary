@@ -2,9 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ColumnAnalysis } from "./csvAnalyzer.js";
 import { logger } from "./logger.js";
 
-const apiKey = process.env.GEMINI_API_KEY;
-
-function getClient(apiVersion = "v1beta"): GoogleGenerativeAI {
+function getClient(apiVersion = "v1beta"): any {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY environment variable is not set");
   }
@@ -37,7 +36,13 @@ async function listSupportedModels(): Promise<string[]> {
     return discoveredModels;
   }
 
-  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    logger.warn("GEMINI_API_KEY is not set — skipping model discovery and using preferred list");
+    discoveredModels = PREFERRED_MODELS;
+    discoveryTs = now;
+    return discoveredModels;
+  }
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`
@@ -123,6 +128,26 @@ export async function generateDataDictionaryAnalysis(
   rowCount: number,
   sampleRows: Record<string, string>[]
 ): Promise<AIAnalysisResult> {
+  // If GEMINI_API_KEY is not provided, return a lightweight deterministic
+  // analysis result so the app can run in dev without external AI access.
+  if (!process.env.GEMINI_API_KEY) {
+    logger.warn("GEMINI_API_KEY not set — returning dev fallback AI analysis");
+    const columnDescriptions = columns.map((col) => ({
+      name: col.name,
+      description: `${col.dataType} field storing ${col.name.replace(/_/g, " ")}`,
+      businessMeaning: `Represents ${col.name.replace(/_/g, " ")} in the business context`,
+      suggestedUsage: `Use for analysis by ${col.name.replace(/_/g, " ")}`,
+      dataQualityNotes: col.nullPercent > 20 ? `High null rate (${col.nullPercent.toFixed(1)}%)` : "No major issues",
+    }));
+
+    return {
+      datasetSummary: `Lightweight summary for ${datasetName}: ${columns.length} fields, ${rowCount} rows.`,
+      businessGlossary: `Basic glossary generated from schema fields.`,
+      dataQualityScore: 80,
+      columnDescriptions,
+      relationshipExplanations: [],
+    };
+  }
   const schemaDescription = columns.map((col) => ({
     name: col.name,
     type: col.dataType,

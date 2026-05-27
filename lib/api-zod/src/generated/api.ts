@@ -21,7 +21,7 @@ export const HealthCheckResponse = zod.object({
  * @summary List all uploaded datasets
  */
 export const ListDatasetsResponseItem = zod.object({
-  "id": zod.number(),
+  "id": zod.union([zod.number(), zod.string()]),
   "name": zod.string(),
   "rowCount": zod.number(),
   "columnCount": zod.number(),
@@ -37,11 +37,11 @@ export const ListDatasetsResponse = zod.array(ListDatasetsResponseItem)
  * @summary Get a dataset with full analysis
  */
 export const GetDatasetParams = zod.object({
-  "id": zod.coerce.number()
+  "id": zod.union([zod.coerce.number(), zod.string()])
 })
 
 export const GetDatasetResponse = zod.object({
-  "id": zod.number(),
+  "id": zod.union([zod.number(), zod.string()]),
   "name": zod.string(),
   "rowCount": zod.number(),
   "columnCount": zod.number(),
@@ -54,7 +54,7 @@ export const GetDatasetResponse = zod.object({
   "createdAt": zod.coerce.date(),
   "columns": zod.array(zod.object({
   "id": zod.number(),
-  "datasetId": zod.number(),
+  "datasetId": zod.union([zod.number(), zod.string()]),
   "name": zod.string(),
   "dataType": zod.string().describe('string | integer | float | boolean | date | email | currency | percentage | category'),
   "nullable": zod.boolean().optional(),
@@ -75,8 +75,8 @@ export const GetDatasetResponse = zod.object({
   "semanticTags": zod.array(zod.string()).optional()
 })),
   "relationships": zod.array(zod.object({
-  "id": zod.number(),
-  "datasetId": zod.number(),
+  "id": zod.union([zod.number(), zod.string()]),
+  "datasetId": zod.union([zod.number(), zod.string()]),
   "fromColumn": zod.string(),
   "toColumn": zod.string(),
   "relationshipType": zod.string().describe('primary_key | foreign_key | categorical | reference'),
@@ -89,7 +89,7 @@ export const GetDatasetResponse = zod.object({
  * @summary Delete a dataset
  */
 export const DeleteDatasetParams = zod.object({
-  "id": zod.coerce.number()
+  "id": zod.union([zod.coerce.number(), zod.string()])
 })
 
 
@@ -97,7 +97,7 @@ export const DeleteDatasetParams = zod.object({
  * @summary Trigger AI analysis (Gemini) for a dataset
  */
 export const AnalyzeDatasetParams = zod.object({
-  "id": zod.coerce.number()
+  "id": zod.union([zod.coerce.number(), zod.string()])
 })
 
 export const AnalyzeDatasetResponse = zod.object({
@@ -113,7 +113,7 @@ export const AnalyzeDatasetResponse = zod.object({
  * @summary Get dashboard statistics for a dataset
  */
 export const GetDatasetStatsParams = zod.object({
-  "id": zod.coerce.number()
+  "id": zod.union([zod.coerce.number(), zod.string()])
 })
 
 export const GetDatasetStatsResponse = zod.object({
@@ -143,7 +143,7 @@ export const GetDatasetStatsResponse = zod.object({
  * @summary Export the data dictionary as CSV text
  */
 export const ExportDatasetParams = zod.object({
-  "id": zod.coerce.number()
+  "id": zod.union([zod.coerce.number(), zod.string()])
 })
 
 
