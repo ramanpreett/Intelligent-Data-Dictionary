@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ColumnAnalysis } from "./csvAnalyzer.js";
+import { logger } from "./logger.js";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -9,6 +10,15 @@ function getClient(): GoogleGenerativeAI {
   }
   return new GoogleGenerativeAI(apiKey);
 }
+
+const FALLBACK_MODELS = [
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-pro",
+  "gemini-pro",
+];
 
 export interface ColumnDescription {
   name: string;
@@ -26,15 +36,36 @@ export interface AIAnalysisResult {
   relationshipExplanations: string[];
 }
 
+async function tryGenerateWithFallback(prompt: string): Promise<string> {
+  const genAI = getClient();
+  let lastError: unknown;
+
+  for (const modelName of FALLBACK_MODELS) {
+    try {
+      logger.info({ model: modelName }, "Attempting Gemini model");
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      logger.info({ model: modelName }, "Gemini model succeeded");
+      return text;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn({ model: modelName, err: message }, "Gemini model failed, trying next");
+      lastError = err;
+    }
+  }
+
+  throw new Error(
+    `All Gemini models failed. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+  );
+}
+
 export async function generateDataDictionaryAnalysis(
   datasetName: string,
   columns: ColumnAnalysis[],
   rowCount: number,
   sampleRows: Record<string, string>[]
 ): Promise<AIAnalysisResult> {
-  const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const schemaDescription = columns.map((col) => ({
     name: col.name,
     type: col.dataType,
@@ -76,8 +107,7 @@ Generate a JSON response with EXACTLY this structure:
 
 Return ONLY valid JSON, no markdown, no code blocks, no extra text.`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
+  const text = await tryGenerateWithFallback(prompt);
 
   // Strip markdown code blocks if present
   const cleaned = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
