@@ -1,0 +1,366 @@
+Build a full-stack AI-powered web application called “Intelligent Data Dictionary Agent” using React.js for the frontend and Node.js + Express for the backend. The application should allow users to upload CSV files, automatically analyze dataset structure, infer metadata, identify relationships, and generate human-readable data dictionary descriptions using the Gemini API.
+
+The UI should look modern, premium, responsive, minimal, and futuristic with a black background and the following color palette:
+
+- Cyan: #6ccff6
+- Black: #001011
+- Gray: #757780
+- White: #fffffc
+- Lime: #98ce00
+
+Use Tailwind CSS for styling.
+
+========================================
+PROJECT GOAL
+========================================
+
+The system should:
+1. Upload CSV datasets
+2. Parse and analyze the dataset
+3. Detect:
+   - column names
+   - data types
+   - null values
+   - unique values
+   - relationships
+   - primary key candidates
+   - categorical fields
+   - numeric fields
+   - date fields
+4. Use Gemini API to generate:
+   - human-readable column descriptions
+   - dataset summary
+   - business meaning
+   - relationship explanations
+5. Generate a professional Data Dictionary table
+6. Provide export functionality
+7. Visualize schema relationships
+8. Support multiple uploaded datasets in the future
+
+========================================
+TECH STACK
+========================================
+
+Frontend:
+- React.js
+- Tailwind CSS
+- React Router
+- Axios
+- Framer Motion
+- Recharts for charts
+- React Dropzone for file upload
+- Lucide React icons
+
+Backend:
+- Node.js
+- Express.js
+- Multer for file uploads
+- csv-parser or papaparse
+- Gemini API
+- CORS
+- dotenv
+
+Optional:
+- MongoDB for storing metadata history
+
+========================================
+APPLICATION FEATURES
+========================================
+
+1. LANDING PAGE
+Create a beautiful landing page with:
+- Hero section
+- Animated gradient headings
+- Upload CTA button
+- Features section
+- Workflow diagram
+- Footer
+
+Hero text:
+“Transform Raw Data into Understandable Intelligence”
+
+Subheading:
+“AI-powered data dictionary generation using intelligent schema analysis and Gemini AI.”
+
+Add smooth animations.
+
+========================================
+2. FILE UPLOAD SYSTEM
+========================================
+
+Create drag-and-drop CSV upload functionality.
+
+Requirements:
+- Upload CSV files only
+- Show file preview
+- Show upload progress
+- Show file size
+- Parse CSV after upload
+- Display success/error messages
+
+========================================
+3. DATASET ANALYZER ENGINE
+========================================
+
+After upload:
+Automatically analyze dataset columns.
+
+For each column detect:
+- Column name
+- Inferred datatype
+- Nullable or not
+- Unique values count
+- Sample values
+- Min/max values
+- Possible primary key
+- Possible foreign key
+- Data format patterns
+- Semantic meaning
+
+Datatypes:
+- String
+- Integer
+- Float
+- Boolean
+- Date
+- Email
+- Currency
+- Percentage
+- Category
+
+========================================
+4. GEMINI AI INTEGRATION
+========================================
+
+Use Gemini API to generate intelligent business descriptions.
+
+Example Prompt Sent to Gemini:
+“You are a professional data analyst. Analyze the following dataset schema and generate concise human-readable descriptions for each field.”
+
+Gemini should generate:
+- Column descriptions
+- Business meaning
+- Suggested usage
+- Data quality notes
+- Relationship explanations
+- Dataset summary
+
+Store Gemini API key in .env.
+
+Backend endpoint:
+POST /api/analyze
+
+========================================
+5. DATA DICTIONARY TABLE
+========================================
+
+Generate a professional interactive table containing:
+
+Columns:
+- Field Name
+- Data Type
+- Description
+- Null %
+- Unique %
+- Sample Values
+- Constraints
+- Relationships
+
+Features:
+- Search
+- Filter
+- Sort
+- Pagination
+- Export CSV
+- Export PDF
+
+========================================
+6. RELATIONSHIP DETECTION
+========================================
+
+Detect relationships automatically.
+
+Examples:
+- Customer_ID → Customer entity
+- Product_ID → Product entity
+- Order_ID → Primary Key
+
+Implement relationship inference logic:
+- Unique column detection
+- Repeated value analysis
+- Similar naming patterns
+- Cross-column comparison
+
+========================================
+7. SCHEMA VISUALIZATION
+========================================
+
+Create interactive relationship diagrams using:
+- React Flow or D3.js
+
+Visualize:
+- Tables
+- Relationships
+- Keys
+- Connections
+
+Use glowing futuristic node styling.
+
+========================================
+8. DASHBOARD PAGE
+========================================
+
+Create analytics dashboard with:
+- Total columns
+- Numeric fields
+- Categorical fields
+- Missing value count
+- Duplicate rows
+- Relationship count
+
+Use charts:
+- Pie chart
+- Bar chart
+- Summary cards
+
+========================================
+9. EXPORT FEATURES
+========================================
+
+Allow users to:
+- Download Data Dictionary as CSV
+- Download PDF report
+- Copy AI-generated documentation
+
+========================================
+10. FOLDER STRUCTURE
+========================================
+
+Frontend structure:
+
+src/
+ ├── components/
+ ├── pages/
+ ├── layouts/
+ ├── services/
+ ├── hooks/
+ ├── utils/
+ ├── assets/
+ ├── context/
+ └── App.js
+
+Backend structure:
+
+server/
+ ├── controllers/
+ ├── routes/
+ ├── services/
+ ├── middleware/
+ ├── utils/
+ ├── uploads/
+ └── index.js
+
+========================================
+11. IMPORTANT UI REQUIREMENTS
+========================================
+
+Design requirements:
+- Black futuristic theme
+- Glassmorphism cards
+- Cyan glowing borders
+- Smooth hover animations
+- Fully responsive
+- Premium dashboard appearance
+- Modern typography
+- Gradient headings
+- Rounded cards
+- Sidebar navigation
+- Animated loading screens
+
+Use the palette consistently:
+- #6ccff6
+- #001011
+- #757780
+- #fffffc
+- #98ce00
+
+========================================
+12. API REQUIREMENTS
+========================================
+
+Backend APIs:
+
+POST /api/upload
+POST /api/analyze
+GET /api/report/:id
+GET /api/export/csv
+GET /api/export/pdf
+
+========================================
+13. EXTRA AI FEATURES
+========================================
+
+Add optional intelligent features:
+- AI-generated dataset summary
+- AI-generated business glossary
+- Suggested column renaming
+- Data quality scoring
+- Duplicate detection
+- Smart warnings
+- Semantic tagging
+
+========================================
+14. SAMPLE WORKFLOW
+========================================
+
+Workflow:
+1. User uploads CSV
+2. Backend parses dataset
+3. Analyzer extracts metadata
+4. Gemini generates descriptions
+5. Frontend displays dictionary
+6. User exports report
+
+========================================
+15. CODE REQUIREMENTS
+========================================
+
+- Write clean modular code
+- Use reusable React components
+- Add comments
+- Use async/await
+- Proper error handling
+- Environment variables
+- Mobile responsiveness
+- Loading states
+- Toast notifications
+
+========================================
+16. ADDITIONAL REQUIREMENTS
+========================================
+
+- Include sample CSV testing support
+- Include README.md
+- Include setup instructions
+- Include Gemini API integration guide
+- Include .env.example
+- Add sample screenshots placeholders
+- Add dark/light mode toggle if possible
+
+========================================
+17. DELIVERABLES
+========================================
+
+Generate:
+- Full frontend code
+- Full backend code
+- Tailwind setup
+- API integration
+- CSV parsing logic
+- Gemini prompt engineering
+- Relationship detection logic
+- PDF export implementation
+- Responsive UI
+- README documentation
+
+The final project should look production-ready and portfolio-worthy.
