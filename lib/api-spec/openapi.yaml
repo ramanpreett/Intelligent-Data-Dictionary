@@ -3,13 +3,18 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Intelligent Data Dictionary Agent API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: datasets
+    description: Dataset upload and management
+  - name: analysis
+    description: AI-powered dataset analysis
+
 paths:
   /healthz:
     get:
@@ -24,6 +29,141 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /datasets:
+    get:
+      operationId: listDatasets
+      tags: [datasets]
+      summary: List all uploaded datasets
+      responses:
+        "200":
+          description: List of datasets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dataset"
+
+  /datasets/{id}:
+    get:
+      operationId: getDataset
+      tags: [datasets]
+      summary: Get a dataset with full analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dataset with analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteDataset
+      tags: [datasets]
+      summary: Delete a dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /datasets/{id}/analyze:
+    post:
+      operationId: analyzeDataset
+      tags: [analysis]
+      summary: Trigger AI analysis (Gemini) for a dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /datasets/{id}/stats:
+    get:
+      operationId: getDatasetStats
+      tags: [datasets]
+      summary: Get dashboard statistics for a dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dataset stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetStats"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /datasets/{id}/export:
+    get:
+      operationId: exportDataset
+      tags: [datasets]
+      summary: Export the data dictionary as CSV text
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: CSV content
+          content:
+            text/csv:
+              schema:
+                type: string
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +174,198 @@ components:
       required:
         - status
 
+    Dataset:
+      type: object
+      required: [id, name, rowCount, columnCount, fileSize, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        rowCount:
+          type: integer
+        columnCount:
+          type: integer
+        fileSize:
+          type: integer
+        status:
+          type: string
+          description: "uploading | analyzing | ready | error"
+        aiSummary:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ColumnInfo:
+      type: object
+      required: [id, datasetId, name, dataType, nullCount, nullPercent, uniqueCount, uniquePercent, sampleValues]
+      properties:
+        id:
+          type: integer
+        datasetId:
+          type: integer
+        name:
+          type: string
+        dataType:
+          type: string
+          description: "string | integer | float | boolean | date | email | currency | percentage | category"
+        nullable:
+          type: boolean
+        nullCount:
+          type: integer
+        nullPercent:
+          type: number
+        uniqueCount:
+          type: integer
+        uniquePercent:
+          type: number
+        sampleValues:
+          type: array
+          items:
+            type: string
+        minValue:
+          type: ["string", "null"]
+        maxValue:
+          type: ["string", "null"]
+        isPrimaryKey:
+          type: boolean
+        isForeignKey:
+          type: boolean
+        foreignKeyRef:
+          type: ["string", "null"]
+        aiDescription:
+          type: ["string", "null"]
+        businessMeaning:
+          type: ["string", "null"]
+        suggestedUsage:
+          type: ["string", "null"]
+        dataQualityNotes:
+          type: ["string", "null"]
+        semanticTags:
+          type: array
+          items:
+            type: string
+
+    Relationship:
+      type: object
+      required: [id, datasetId, fromColumn, toColumn, relationshipType]
+      properties:
+        id:
+          type: integer
+        datasetId:
+          type: integer
+        fromColumn:
+          type: string
+        toColumn:
+          type: string
+        relationshipType:
+          type: string
+          description: "primary_key | foreign_key | categorical | reference"
+        description:
+          type: ["string", "null"]
+
+    DatasetDetail:
+      type: object
+      required: [id, name, rowCount, columnCount, fileSize, status, createdAt, columns, relationships]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        rowCount:
+          type: integer
+        columnCount:
+          type: integer
+        fileSize:
+          type: integer
+        status:
+          type: string
+        aiSummary:
+          type: ["string", "null"]
+        businessGlossary:
+          type: ["string", "null"]
+        dataQualityScore:
+          type: ["number", "null"]
+        duplicateRows:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColumnInfo"
+        relationships:
+          type: array
+          items:
+            $ref: "#/components/schemas/Relationship"
+
+    AnalysisResult:
+      type: object
+      required: [datasetId, status]
+      properties:
+        datasetId:
+          type: integer
+        status:
+          type: string
+        aiSummary:
+          type: ["string", "null"]
+        businessGlossary:
+          type: ["string", "null"]
+        dataQualityScore:
+          type: ["number", "null"]
+
+    DatasetStats:
+      type: object
+      required: [totalColumns, numericFields, categoricalFields, dateFields, stringFields, missingValueCount, duplicateRows, relationshipCount, dataQualityScore, nullableColumns, primaryKeyCandidates]
+      properties:
+        totalColumns:
+          type: integer
+        numericFields:
+          type: integer
+        categoricalFields:
+          type: integer
+        dateFields:
+          type: integer
+        stringFields:
+          type: integer
+        missingValueCount:
+          type: integer
+        duplicateRows:
+          type: integer
+        relationshipCount:
+          type: integer
+        dataQualityScore:
+          type: number
+        nullableColumns:
+          type: integer
+        primaryKeyCandidates:
+          type: integer
+        columnTypeBreakdown:
+          type: array
+          items:
+            type: object
+            required: [type, count]
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        nullDistribution:
+          type: array
+          items:
+            type: object
+            required: [column, nullPercent]
+            properties:
+              column:
+                type: string
+              nullPercent:
+                type: number
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
