@@ -7,9 +7,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://intelligent-data-dictionary-vtok.onrender.com" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "source": "/api/:path*", "destination": "https://intelligent-data-dictionary-vtok.onrender.com/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
