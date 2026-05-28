@@ -1,10 +1,13 @@
-{
+﻿{
   "builds": [
     {
       "src": "artifacts/data-dictionary/package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist/public" }
     }
+  ],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://intelligent-data-dictionary-vtok.onrender.com" }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
