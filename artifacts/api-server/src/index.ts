@@ -10,13 +10,7 @@ const [{ default: app }, { logger }] = await Promise.all([
   import("./lib/logger"),
 ]);
 
-const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
+const rawPort = process.env["PORT"] ?? "5000";
 
 const port = Number(rawPort);
 

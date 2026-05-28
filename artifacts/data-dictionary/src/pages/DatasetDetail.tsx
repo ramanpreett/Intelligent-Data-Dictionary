@@ -166,6 +166,8 @@ export function DatasetDetail() {
     return [...new Set(dataset.columns.map((c) => c.dataType))];
   }, [dataset]);
 
+  const rowCountLabel = dataset?.rowCount != null ? dataset.rowCount.toLocaleString() : "0";
+
   const filteredColumns = useMemo(() => {
     if (!dataset) return [];
     let cols = dataset.columns;
@@ -246,7 +248,7 @@ export function DatasetDetail() {
             {dataset.name}
           </h1>
           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground font-mono flex-wrap">
-            <span>{dataset.rowCount.toLocaleString()} rows</span>
+            <span>{rowCountLabel} rows</span>
             <span>{dataset.columnCount} columns</span>
             <span>{formatBytes(dataset.fileSize)}</span>
             <span>{formatDate(dataset.createdAt)}</span>
