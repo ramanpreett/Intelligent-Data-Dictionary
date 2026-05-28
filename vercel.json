@@ -6,8 +6,9 @@
       "config": { "distDir": "dist/public" }
     }
   ],
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "https://intelligent-data-dictionary-vtok.onrender.com/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "https://intelligent-data-dictionary-vtok.onrender.com/$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
